@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jungle Cat</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="cab">
+<div class="screen" id="sc" data-view="title"><div class="in">
+ <img class="art" data-v="title menu scores settings sound gfx tune quit" alt="Jungle Cat title screen: a green-haired, cat-eared adventurer cracks a whip in front of a jungle temple" src="graphics/title/title_screen.webp"><canvas class="lgc" id="lgc" width="1024" height="440" data-v="title menu scores settings sound gfx tune quit" aria-hidden="true"></canvas>
+ <canvas id="cv" width="1280" height="960" data-v="game over" aria-label="Game field"></canvas>
+ <img id="bg" alt="" style="display:none" src="graphics/backgrounds/background_part_1_of_4.webp">
+ <img id="bg3" alt="" style="display:none" src="graphics/backgrounds/background_part_2_of_4.webp">
+ <img id="bg5" alt="" style="display:none" src="graphics/backgrounds/background_part_4_of_4.webp">
+ <img id="bg4" alt="" style="display:none" src="graphics/backgrounds/background_part_3_of_4.webp">
+ <img id="sky1" alt="" style="display:none" src="graphics/backgrounds/sky_strip.webp">
+ 
+ <div class="shade" data-v="title menu settings sound gfx tune quit"></div>
+ <div class="crawl" data-v="title menu" role="note" aria-label="The story of Jungle Cat"><div class="crawlp"><div class="crawlt" id="crawlt"><p>THE KINGDOM WAS ONCE PEACEFUL...</p><p>AFTER A LONG REIGN, THE QUEEN DIED OF OLD AGE.</p><p>HER DEATH LEFT THE KINGDOM WITHOUT ITS LEADER.</p><p>SEIZING THE OPPORTUNITY, A MILITARY GANG KIDNAPPED THE PRINCESS — THE HEIR TO THE THRONE.</p><p>CHAOS SPREAD THROUGHOUT THE KINGDOM.</p><p>THE KIDNAPPERS DEMANDED 5 BILLION DOLLARS FOR HER RETURN.</p><p>BUT THE RANSOM WAS A LIE.</p><p>THEIR REAL PLAN WAS TO ABANDON THE PRINCESS IN A LOST, FORGOTTEN JURASSIC PARK DEEP INSIDE A DEADLY JUNGLE...</p><p>AND LET THE DINOSAURS TAKE CARE OF THE REST.</p><p>WITH THE PRINCESS GONE, THE GANG PLANS TO SEIZE CONTROL OF THE KINGDOM.</p><p>ONLY ONE PERSON CAN STOP THEM.</p><p>JUNGLE CAT MUST ENTER THE FORBIDDEN JUNGLE, FIND THE PRINCESS, SURVIVE THE DINOSAURS, AND DEFEAT THE MILITARY GANG...</p><p>BEFORE THE KINGDOM FALLS.</p></div></div></div>
+ <h1 class="logo" id="logo" data-v="title menu" aria-label="Jungle Cat"></h1>
+ <button class="pstart" id="start" data-v="title menu" aria-label="Press start"></button>
+ <div class="mainm" data-v="title menu"><ul class="panel menu" id="menu"><li><button>HIGH SCORES</button></li><li><button>SETTINGS</button></li><li><button>QUIT</button></li></ul></div>
+ <div class="hint2" data-v="title menu">ARROWS: MOVE &nbsp; UP: JUMP &nbsp; DOWN: CROUCH &nbsp; X: ATTACK</div>
+ <div class="mid" data-v="settings"><div class="panel"><div class="ph">SETTINGS</div><ul class="menu" id="setMenu"><li><button>SOUND</button></li><li><button>GRAPHICS</button></li><li><button>BACK</button></li></ul></div></div>
+ <div class="mid" data-v="sound"><div class="panel"><div class="ph">SOUND</div><ul class="menu" id="sndMenu"><li><button>MUSIC: ON</button></li><li><button>EFFECTS: ON</button></li><li><button>BACK</button></li></ul></div></div>
+ <div class="mid" data-v="gfx"><div class="panel"><div class="ph">GRAPHICS</div><ul class="menu" id="gfxMenu"><li><button>EXPERT SETTINGS</button></li><li><button>BACK</button></li></ul></div></div>
+ <div class="mid" data-v="tune"><div class="panel tune"><div class="ph">EXPERT SETTINGS</div><div class="soon">UP / DOWN: CHOOSE &nbsp; LEFT / RIGHT: CHANGE &nbsp; SHIFT: x10 &nbsp; ENTER: DEFAULT &nbsp; ESC: BACK</div><div id="tuneList"></div><div class="soon" id="tuneNr"></div><div class="tdesc" id="tuneDesc"></div><div class="soon">SOME VALUES NEED A PAGE RELOAD (F5) &middot; SAVED IN THIS BROWSER</div></div></div>
+ <div class="mid" data-v="quit"><div class="panel"><div class="ph">THANKS FOR PLAYING!</div><div class="soon">YOU CAN NOW CLOSE THIS TAB</div><ul class="menu" id="quitMenu"><li><button>BACK TO TITLE</button></li></ul></div></div>
+ <div class="mid" data-v="scores"><div class="panel"><h2>HIGH SCORES</h2><ol id="rows"></ol><div class="row"><button class="btn" id="sPlay">PLAY</button><button class="btn" id="sBack">MENU</button></div></div></div>
+ <div class="hud" id="hud" data-v="game"></div>
+ <div class="sb" id="sb" data-v="game over">
+  <div class="sbp" id="sbHealth"><div class="sbl">HEALTH</div><div class="sbhs" id="sbHearts"></div></div>
+  <div class="sbp"><div class="sbl">KNIVES</div><div class="sbv" id="sbAmmo">0</div></div>
+  <div class="sbp"><div class="sbl">ARMS</div><div class="arms" id="sbArms"><span>1</span><span>2</span><span>3</span></div><div class="sbl sbs" id="sbWep">WHIP</div></div>
+  <div class="sbp sbface"><img id="sbFace" alt="Jungle Cat's face" src=""></div>
+  <div class="sbp"><div class="sbl">SCORE</div><div class="sbv sbg" id="sbScore">0000000</div></div>
+  <div class="sbp"><div class="sbl">GEMS</div><div class="sbv sbg" id="sbGems">0</div></div>
+  <div class="sbp"><div class="sbl" id="sbAirL">AIR</div><div class="sbbar"><i id="sbAirF"></i></div></div>
+ </div>
+
+ <div class="mid" data-v="over"><div class="panel"><h2 id="ovT">GAME OVER</h2><div id="ovs"></div>
+  <div id="entry"><div>NEW HIGH SCORE! INITIALS:</div><div class="row" style="margin:.8em 0"><button class="ini"></button><button class="ini"></button><button class="ini"></button></div><button class="btn" id="ok">SAVE</button></div>
+  <div class="row" id="ovBtns"><button class="btn" id="oAgain">PLAY AGAIN</button><button class="btn" id="oMenu">MENU</button></div></div></div>
+ <div class="danv" data-v="dance" id="danV"><img class="danbg" src="graphics/win_screen/win_dance.webp" alt="" aria-hidden="true"><img class="danimg" src="graphics/win_screen/win_dance.webp" alt="Jungle Cat and the Princess dance together in the jungle temple to celebrate."><div class="dantxt">PRESS SPACE TO CONTINUE</div></div>
+ <div class="winv" data-v="win"><img class="winbg" id="winBg" alt="" aria-hidden="true"><div class="winbox"><img id="winImg" alt="You win! The Princess is saved. Jungle Cat stands victorious in front of the jungle temple." src="graphics/win_screen/win_screen.webp"><button id="winBack" class="winbtn" aria-label="Back to start menu"></button><div class="winscore" id="winScore"></div></div></div>
+ <div class="crawl crawlw" data-v="win" role="note" aria-label="The ending of Jungle Cat"><div class="crawlp"><div class="crawlt"><p class="cwh">THE PRINCESS WAS SAVED BY JUNGLE CAT!</p><p>The Princess became the new Queen, and peace returned to the Kingdom.</p><p>In gratitude, Jungle Cat's homeland was declared a protected Nature Reserve, and Jungle Cat would always be welcome at the Queen's palace.</p><p>And sometimes, the Queen secretly visits her dear friend in the jungle, knowing that Jungle Cat is always nearby, watching over her every step.</p><p>Some friendships last forever!</p><img class="cwimg" alt="The new Queen and Jungle Cat greet the cheering crowd from the palace balcony." src="graphics/win_screen/princess_queen.webp"></div></div></div>
+</div></div>
+<p class="foot">LEFT / RIGHT: MOVE &nbsp; UP / SPACE: JUMP &nbsp; DOWN / RIGHT CLICK: CROUCH &nbsp; UP / DOWN AT A VINE: CLIMB &nbsp; LEFT CLICK / X: ATTACK &nbsp; 1-3: WEAPON &nbsp; CROUCH AT A ROPE HOLE: HANG &nbsp; P: PAUSE &nbsp; ESC: QUIT<br>SCORES SAVE IN THIS BROWSER &nbsp; &copy; 2026 JUNGLE CAT</p>
+</main>
+<script src="audio/sfx_pack.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
