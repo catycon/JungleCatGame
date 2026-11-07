@@ -3965,7 +3965,7 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             x.restore();
         }
         x.fillStyle = 'rgba(150,235,255,.6)';
-        for (var i = 0; i < z[1]; i += 7)
+        for (var i = Math.max(0, Math.floor((cam - 10 - z[0]) / 7) * 7), ie = Math.min(z[1], cam + 300 - z[0]); i < ie; i += 7)
             x.fillRect(z[0] + i, z[2] + Math.sin((T + i) / 7) * 1.3, 4, 1.5);
     }
     function solid(s) {
@@ -3973,6 +3973,32 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
         if (X > cam + 280 || X + w < cam - 10)
             return;
         if (t === 'g' || t === 'r') {
+            if (!s._c && w * (h + 10) * 16 < 6000000 && AS.tA && AS.tA.naturalWidth && AS.tB && AS.tB.naturalWidth && AS.tC && AS.tC.naturalWidth && AS.tD && AS.tD.naturalWidth && AS.tR && AS.tR.naturalWidth) {
+                var sc0 = document.createElement('canvas'), ox = x;
+                sc0.width = Math.ceil(w * 4);
+                sc0.height = Math.ceil((h + 10) * 4);
+                x = sc0.getContext('2d');
+                x.imageSmoothingEnabled = true;
+                x.setTransform(4, 0, 0, 4, -X * 4, -(Y - 10) * 4);
+                x.save();
+                x.beginPath();
+                x.rect(X, Y - 10, w, h + 10);
+                x.clip();
+                for (var tx0 = X - 4, n0 = 0; tx0 < X + w; tx0 += 34, n0++) {
+                    sp(['tA', 'tB', 'tC', 'tD'][n0 % 4], tx0, Y - 3, 42, 42);
+                    for (var ty0 = Y + 34; ty0 < Y + h; ty0 += 34)
+                        sp('tR', tx0, ty0, 42, 42);
+                }
+                x.restore();
+                x.fillStyle = 'rgba(12,22,6,.55)';
+                x.fillRect(X, Y - 1, w, 1.6);
+                x = ox;
+                s._c = sc0;
+            }
+            if (s._c) {
+                x.drawImage(s._c, X, Y - 10, w, h + 10);
+                return;
+            }
             x.save();
             x.beginPath();
             x.rect(X, Y - 10, w, h + 10);
@@ -4018,6 +4044,8 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
                 chimpRope(e);
             return;
         }
+        if (e.x > cam + 450 || e.x + (e.w || 0) < cam - 170)
+            return;
         if (e.k === 12) {
             chimpDraw(e, 0);
             return;
@@ -5254,21 +5282,39 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
         x.fillStyle = g;
         x.fillRect(cam - 6, z[2], 290, H - z[2] + 40);
         cycWater(cam - 6, z[2], 290, H - z[2] + 40, 0.85);
-        for (var yb = z[2]; yb < H + 40; yb += 3) {
-            x.fillStyle = 'rgba(150,230,255,' + (0.1 + 0.09 * Math.sin(T / 9 - yb * 0.8)) + ')';
-            x.fillRect(cam - 6, yb, 290, 1.6);
+        var lh = Math.ceil(H + 40 - z[2]) + 4, lx0 = Math.floor(cam / 24) * 24 - 24;
+        if (!z._c) {
+            z._c = document.createElement('canvas');
+            z._c.width = 313 * 4;
+            z._c.height = lh * 4;
+            z._t = -99;
         }
-        /* colour cycling: palette bands that slide through the water (same palette as the painted lake) */
-        var lc = LKP.length, lcs = T * 0.12 | 0, lk, lxi, ly;
+        if (Math.abs(T - z._t) >= 3 || T < z._t || z._x !== lx0) {
+            var ox2 = x, lg = z._c.getContext('2d');
+            lg.setTransform(1, 0, 0, 1, 0, 0);
+            lg.clearRect(0, 0, z._c.width, z._c.height);
+            x = lg;
+            x.setTransform(4, 0, 0, 4, -lx0 * 4, -z[2] * 4);
+            for (var yb = z[2]; yb < H + 40; yb += 3) {
+                x.fillStyle = 'rgba(150,230,255,' + (0.1 + 0.09 * Math.sin(T / 9 - yb * 0.8)) + ')';
+                x.fillRect(lx0, yb, 313, 1.6);
+            }
+            /* colour cycling: palette bands that slide through the water (same palette as the painted lake) */
+            var lc = LKP.length, lcs = T * 0.12 | 0, lk, lxi, ly;
+            for (ly = z[2] + 1.5, lk = 0; ly < H + 40; ly += 2.8, lk++)
+                for (lxi = 0; lxi < 12; lxi++) {
+                    x.fillStyle = 'rgba(' + LKP[(lk + lcs + lxi) % lc] + ',' + (lk < 3 ? 0.34 : 0.5) + ')';
+                    x.fillRect(lx0 + lxi * 24 + (lk % 2 ? 3 : 0), ly + Math.sin(lxi * 1.7 + lk * 0.6 + T * 0.05) * 0.7, 25, 2);
+                }
+            x = ox2;
+            z._t = T;
+            z._x = lx0;
+        }
         x.save();
         x.beginPath();
         x.rect(cam - 6, z[2], 290, H - z[2] + 40);
         x.clip();
-        for (ly = z[2] + 1.5, lk = 0; ly < H + 40; ly += 2.8, lk++)
-            for (lxi = 0; lxi < 12; lxi++) {
-                x.fillStyle = 'rgba(' + LKP[(lk + lcs + lxi) % lc] + ',' + (lk < 3 ? 0.34 : 0.5) + ')';
-                x.fillRect(Math.floor(cam / 24) * 24 - 24 + lxi * 24 + (lk % 2 ? 3 : 0), ly + Math.sin(lxi * 1.7 + lk * 0.6 + T * 0.05) * 0.7, 25, 2);
-            }
+        x.drawImage(z._c, lx0, z[2], 313, lh);
         x.restore();
         x.fillStyle = 'rgba(225,250,255,.8)';
         for (i = x0; i < x0 + 300; i += 9) {
@@ -5475,15 +5521,17 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             }
         });
         L.v.forEach(function (v) {
-            if (!v[4])
+            if (!v[4] && v[0] > cam - 30 && v[0] < cam + 310)
                 sp((v[0] | 0) % 2 ? 'vp1' : 'vp2', v[0] - 7, v[1] - 4, 14, v[2] - v[1] + 4);
         });
         L.sk.forEach(function (s) {
+            if (s[0] > cam + 300 || s[0] + s[1] < cam - 20)
+                return;
             sp('spikes', s[0], 178, s[1], 12);
         });
         spikesDraw();
         IT.forEach(function (t) {
-            if (t.got)
+            if (t.got || t.x < cam - 40 || t.x > cam + 330)
                 return;
             var im = AS[t.n];
             if (im && im.naturalWidth)
@@ -5504,6 +5552,8 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             rc(x, p.x + (p.vx > 0 ? -3 : 7), p.y, 3, 2, '#6b4526');
         });
         SW.forEach(function (s) {
+            if (s.x < cam - 120 || s.x > cam + 400)
+                return;
             x.save();
             x.translate(s.x, s.y);
             x.rotate(-s.th);
