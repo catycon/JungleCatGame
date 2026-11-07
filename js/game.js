@@ -317,6 +317,7 @@
     var CAP_VOL = 2;                           /* captive scene sound volume (was 1, now 100% louder); the scene's sound (audio/captive_scene.wav), played once at the start of every loop of the animation. 0 = silent */
     var AMB_VOL = 1;                           /* volume of the jungle ambience loop (audio/ambience.wav). 1 = as before, 0 = silent */
     var SFX_VOL = 1;                           /* volume of all beeps, clicks and pickups (the 8-bit WAV samples in audio/sfx/). 1 = as before, 0 = silent */
+    var LIGHT_MODE = 0;                        /* 0 = automatic (light mode only in Firefox, which draws big canvases slowly), 1 = always on, 2 = always off. Light mode switches off the animated waterfall / lake colour effects and refreshes the lake less often. Needs a page reload (F5). */
     var PRH_ON = 1;
     var PRH_X = 18028.6;
     var PRH_FY = 131.9;
@@ -639,6 +640,7 @@
         ["PRINCESS / DANCE", "CAP_ALPHA", 1, ""],
         ["SCREEN / MISC", "AMB_VOL", 0.1, "volume of the jungle ambience loop (audio/ambience.wav: wind, insects, hum). 1 = as before, 0 = silent"],
         ["SCREEN / MISC", "SFX_VOL", 0.1, "volume of all beeps, clicks and pickups (the 8-bit WAV samples in audio/sfx/). 1 = as before, 0 = silent"],
+        ["SCREEN / MISC", "LIGHT_MODE", 1, "0 = automatic (light mode only in Firefox, which draws big canvases slowly), 1 = always on, 2 = always off. Light mode switches off the animated waterfall / lake colour effects and refreshes the lake less often. Needs a page reload (F5)."],
         ["PRINCESS / DANCE", "CAP_VOL", 1, "volume of the scene's sound (audio/captive_scene.wav), played once at the start of every loop of the animation. 0 = silent"],
         ["PRINCESS / DANCE", "PRH_ON", 1, ""],
         ["PRINCESS / DANCE", "PRH_X", 1000, ""],
@@ -5258,7 +5260,15 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
         crown(px, ty, 1);
     }
     /* colour cycling overlay for the water you swim in: the same moving palette as the painted lake (see cycBG), blended over the water */
+    var LITE = null;
+    function lite() {
+        if (LITE === null)
+            LITE = LIGHT_MODE === 1 || LIGHT_MODE === 0 && /Firefox\//.test(navigator.userAgent);
+        return LITE;
+    }
     function cycWater(rx, ry, rw, rh, al) {
+        if (lite())
+            return;
         cycInit();
         if (!PLK || rw <= 0 || rh <= 0)
             return;
@@ -5289,7 +5299,7 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             z._c.height = lh * 4;
             z._t = -99;
         }
-        if (Math.abs(T - z._t) >= 3 || T < z._t || z._x !== lx0) {
+        if (Math.abs(T - z._t) >= (lite() ? 8 : 3) || T < z._t || z._x !== lx0) {
             var ox2 = x, lg = z._c.getContext('2d');
             lg.setTransform(1, 0, 0, 1, 0, 0);
             lg.clearRect(0, 0, z._c.width, z._c.height);
@@ -5499,7 +5509,8 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
                     bgDraw(im, a - off, sy, b - a, VHp - tp, (a - vx) * 1.25, tp * 1.25, (b - a) * 1.25 + 1, (VHp - tp) * 1.25 + 1);
                 off += w;
             });
-            cycBG(segs, vx, sy, tp, VWp, VHp);
+            if (!lite())
+                cycBG(segs, vx, sy, tp, VWp, VHp);
         } else {
             x.fillStyle = '#145a3a';
             x.fillRect(0, 0, 800, 600);
