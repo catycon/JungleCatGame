@@ -5433,14 +5433,56 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             }
         }
     }
+    /* the painted backgrounds are 14496 px wide (about 67 MB each once decoded). Drawing a small window out of such a huge picture every frame is slow,
+       so each one is cut once into 1024 px slices (ImageBitmaps) that are drawn instead. Until a slice is ready the old way is used. */
+    var BGCH = 1024;
+    function bgPrep(im) {
+        if (!im._ch) {
+            im._ch = [];
+            im._cn = Math.ceil(im.naturalWidth / BGCH);
+            im._cb = 0;
+        }
+        var n = 0;
+        while (im._cb < im._cn && n < 3 && !im._cf && window.createImageBitmap) {
+            (function (c) {
+                var sx0 = c * BGCH, w0 = Math.min(BGCH, im.naturalWidth - sx0);
+                createImageBitmap(im, sx0, 0, w0, im.naturalHeight).then(function (bm) {
+                    im._ch[c] = bm;
+                }, function () {
+                    im._cf = 1;
+                });
+            })(im._cb);
+            im._cb++;
+            n++;
+        }
+    }
+    function bgDraw(im, sx, sy, sw, sh, dx, dy, dw, dh) {
+        if (im._ch && !im._cf) {
+            var c0 = Math.floor(sx / BGCH), c1 = Math.floor((sx + sw - 1) / BGCH), c, rdy = true;
+            for (c = c0; c <= c1; c++)
+                if (!im._ch[c]) {
+                    rdy = false;
+                    break;
+                }
+            if (rdy) {
+                for (c = c0; c <= c1; c++) {
+                    var s0 = Math.max(sx, c * BGCH), s1 = Math.min(sx + sw, (c + 1) * BGCH);
+                    x.drawImage(im._ch[c], s0 - c * BGCH, sy, s1 - s0, sh, dx + (s0 - sx) * 1.25, dy, (s1 - s0) * 1.25 + 1, dh);
+                }
+                return;
+            }
+        }
+        x.drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
     function draw() {
         var segs = L.bg.map(function (k) {
                 return BGS[k];
             }), tot = 0, ok = true, i, dx = Math.round(cam * 4), dy = Math.round(camY * 4), cx = dx / 4, dyb = Math.round(camY * 3.2) + 384, sy = Math.max(0, dyb), tp = sy - dyb, sk = SKYS[L.sky];
         segs.forEach(function (im) {
-            if (im.complete && im.naturalWidth)
+            if (im.complete && im.naturalWidth) {
                 tot += im.naturalWidth;
-            else
+                bgPrep(im);
+            } else
                 ok = false;
         });
         x.setTransform(1, 0, 0, 1, 0, 0);
@@ -5454,7 +5496,7 @@ function crocUpdLunge(dt,mb){CRO.forEach(function(c){
             segs.forEach(function (im) {
                 var w = im.naturalWidth, a = Math.max(vx, off), b = Math.min(vx + VWp, off + w);
                 if (b > a && VHp - tp > 0)
-                    x.drawImage(im, a - off, sy, b - a, VHp - tp, (a - vx) * 1.25, tp * 1.25, (b - a) * 1.25 + 1, (VHp - tp) * 1.25 + 1);
+                    bgDraw(im, a - off, sy, b - a, VHp - tp, (a - vx) * 1.25, tp * 1.25, (b - a) * 1.25 + 1, (VHp - tp) * 1.25 + 1);
                 off += w;
             });
             cycBG(segs, vx, sy, tp, VWp, VHp);
