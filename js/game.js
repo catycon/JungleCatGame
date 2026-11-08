@@ -26,6 +26,17 @@
    ENEMY KINDS (e.k):  0 snake  1 bat  2 crocodile  3 raptor  4 lizard man  5 spider  6 dragonfly  7 armored beast
                        8 skeleton  9 archer 10 (enemy10)  10 gorilla  11 woman boss  12 chimp  13 archer 30 (enemy30)
    ====================================================================================================================== */
+/* every picture the game creates is remembered, so the loading bar can show how many are ready */
+window.JC_IMGS = [];
+(function () {
+    var O = window.Image;
+    window.Image = function (w, h) {
+        var im = new O(w, h);
+        window.JC_IMGS.push(im);
+        return im;
+    };
+    window.Image.prototype = O.prototype;
+})();
 (function () {
     /* ===================================================================================================================
        GAME SETTINGS  -  every number a human may want to change lives in this block (search for "GAME SETTINGS").
@@ -1571,6 +1582,53 @@
         o.stop(n + d);
     }
     /* views */
+    /* ---- loading bar: after START the level waits until all pictures (and the sliced backgrounds) are ready ---- */
+    function jcProgress() {
+        var list = window.JC_IMGS.concat([].slice.call(document.querySelectorAll('img'))), done = 0, tot = list.length, i, k, im;
+        for (i = 0; i < list.length; i++)
+            if (list[i].complete)
+                done++;
+        if (window.createImageBitmap && L && L.bg)
+            for (k = 0; k < L.bg.length; k++) {
+                im = BGS[L.bg[k]];
+                if (im && im.complete && im.naturalWidth) {
+                    bgPrep(im);
+                    tot += im._cn;
+                    done += im._cf ? im._cn : im._ch.filter(Boolean).length;
+                } else
+                    tot += 15;
+            }
+        return tot ? Math.min(1, done / tot) : 1;
+    }
+    function jcGate(cb) {
+        var t0 = Date.now(), ov = null, bar, pct;
+        function poll() {
+            if (view !== 'game') {
+                if (ov)
+                    ov.remove();
+                return;
+            }
+            var p = jcProgress();
+            if (p >= 1 || Date.now() - t0 > 90000) {
+                if (ov)
+                    ov.remove();
+                cb();
+                return;
+            }
+            if (!ov) {
+                ov = document.createElement('div');
+                ov.style.cssText = 'position:absolute;inset:0;z-index:60;background:#040b06;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4em;color:#ffc83d;font-size:max(10px,2.2cqw);text-shadow:2px 2px 0 #000';
+                ov.innerHTML = '<div>LOADING JUNGLE ...</div><div style="width:56%;height:1.6em;border:3px solid #7cf000;box-shadow:0 0 0 3px #000,0 0 18px #7cf00055;background:#0a1a0e;padding:3px;box-sizing:border-box"><div class="jcb" style="height:100%;width:0;background:linear-gradient(#b6ff4a,#4aa800)"></div></div><div class="jcp">0%</div>';
+                sc.appendChild(ov);
+                bar = ov.querySelector('.jcb');
+                pct = ov.querySelector('.jcp');
+            }
+            bar.style.width = Math.round(p * 100) + '%';
+            pct.textContent = Math.round(p * 100) + '%';
+            setTimeout(poll, 60);
+        }
+        poll();
+    }
     function show(v) {
         if (v === 'menu')
             v = 'title';
@@ -2502,8 +2560,10 @@
         loadLevel();
         cancelAnimationFrame(raf);
         show('game');
-        last = performance.now();
-        raf = requestAnimationFrame(loop);
+        jcGate(function () {
+            last = performance.now();
+            raf = requestAnimationFrame(loop);
+        });
     }
     function stop() {
         cancelAnimationFrame(raf);
